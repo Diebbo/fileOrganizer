@@ -10,5 +10,4 @@ defining the regular language:
     - where [subject] is the first argument
     - and the block [a-z] indicates the sub-directory (by default "lucidi")
  - that works even for the main linux directories: (Documents|Downloads|Music|Pictures|Public|Templates|Videos)-([a-z]|[A-Z]|\d)*
- - if no directories is specified, then it's gonna look for the extencion => ex. \*.pdf => Pictures
- - the only tag nd-\*(no directory) => will specify that it remains in the Downloads
+ - if no directories is specified, then it's gonna look for the extencion => ex. \*.pdf => Documents/pdf

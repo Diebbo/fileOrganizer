@@ -1,6 +1,7 @@
 # Python File Orginizer
-tested for linux
+tested for linux (what else)
 
+Dowloads direcoty file organizer
 
 ## How to ->
 costantly check the download directory.

@@ -6,7 +6,7 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "pythonPath": "${workspaceFolder}/bin/python",
+            "python": "${workspaceFolder}/bin/python",
             "envFile": "${workspaceFolder}/.env",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",

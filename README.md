@@ -11,3 +11,8 @@ defining the regular language:
     - and the block [a-z] indicates the sub-directory (by default "lucidi")
  - that works even for the main linux directories: (Documents|Downloads|Music|Pictures|Public|Templates|Videos)-([a-z]|[A-Z]|\d)*
  - if no directories is specified, then it's gonna look for the extencion => ex. \*.pdf => Documents/pdf
+
+ ## future features
+ - convert .xopp files in the a certain direcoty:
+   - option to override
+   - option to recursvily search in subdirs

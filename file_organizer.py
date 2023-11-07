@@ -26,7 +26,7 @@ def move_to(files, dest_path, name, prefixes, destinations, is_recursive = True)
       dest = ''
       for prefix in prefixes:
          if prefix in file[:3]:
-            file = file.replace(f'{prefix}-', '')
+            file_no_prefix = file.replace(f'{prefix}-', '')
             dest = destinations[prefix]
             break
       
@@ -34,41 +34,16 @@ def move_to(files, dest_path, name, prefixes, destinations, is_recursive = True)
          raise Exception('directory not found, for file ' + file)
 
       # finding sub-directory
-      file_name = find_subdir(file_name, f'/home/{USER}/{dest}')
+      file_in_subdir = find_subdir(file_no_prefix, f'{dest_path}/{dest}')
 
       # move file
-      move_path = f'/home/{USER}/{dest_path}/{dest}/{file_name}'
-      print(f'file moved to {move_path}')
-      sh.move(f'/home/{USER}/{DOWLOAD_DIRECTORY}/{file}', move_path)
-
-def move_to_uni(files):
-   for file in files:
-      if not default_yes:
-         handle_file(file, 'uni')
-
-      # removing file prefix
-      prefixes = ['ott', 'lin', 'sis', 'cal', 'ret']
-      destinations = {'ott': 'Ottimizzazione Combinatoria', 'lin': 'Linguaggi di Programmazione', 'sis': 'Sistemi Operativi', 'cal': 'Calcolo Numerico', 'ret': 'Reti di Calcolatori'}
-      dest = ''
-      for prefix in prefixes:
-         if prefix in file[:3]:
-            file = file.replace(f'{prefix}-', '')
-            dest = destinations[prefix]
-            break
-      
-      if dest == '':
-         raise Exception('directory not found, for file ' + file)
-      
-      # find subdirectory
-      file_name = find_subdir(file_name, f'{PATH_TO_UNI}/{dest}')
-      # move file
-      move_path = f'/home/{USER}/{PATH_TO_UNI}/{dest}/{file_name}'
+      move_path = f'{dest_path}/{dest}/{file_in_subdir}'
       print(f'file moved to {move_path}')
       sh.move(f'/home/{USER}/{DOWLOAD_DIRECTORY}/{file}', move_path)
 
 def find_subdir(file_name, path):
    # finding sub-directory
-   os.chdir(f'/home/{USER}/{path}')
+   os.chdir(path)
    subdirs = os.listdir('.')
    if '-' in file_name:
       file_subdir = file_name.split('-')[0]
@@ -82,31 +57,6 @@ def find_subdir(file_name, path):
          # raise Exception('subdirectory not found' + file_subdir + 'in' + file)
    
    return file_name
-
-def move_to_file_sys(files):
-   for file in files:
-      if not default_yes:
-         handle_file(file, 'file system')
-
-      # get file prefix
-      prefixes = ['doc', 'pic', 'vid', 'mus', 'tem', 'pub', 'dow']
-      destinations = {'doc': 'Documents', 'pic': 'Pictures', 'vid': 'Videos', 'mus': 'Music', 'tmp': 'tmp', 'pub': 'Public', 'dow': 'Downloads'}
-      
-      dest = ''
-      for prefix in prefixes:
-         if prefix in file[:3]:
-            file = file.replace(f'{prefix}-', '')
-            dest = destinations[prefix]
-            break
-      
-      if dest == '':
-         raise Exception('directory not found, for file ' + file)
-
-      # finding sub-directory
-      file_name = find_subdir(file_name, f'/home/{USER}/{dest}')
-
-      # move file
-      sh.move(f'/home/{USER}/{DOWLOAD_DIRECTORY}/{file}', f'/home/{USER}/{dest}/{file_name}')
 
 def convert_xopp(path, is_recursive = True):
    # get all files in xopp_path
@@ -174,10 +124,11 @@ def main():
 
       # move files
       try:
-         move_to(uni_files, PATH_TO_UNI, 'uni', uni_prefixes, uni_destinations)
+         move_to(uni_files, f'/home/{user}/{PATH_TO_UNI}', 'uni', uni_prefixes, uni_destinations)
          move_to(file_sys_files, f'/home/{user}/', 'file system', sys_prefixes, sys_destinations)
       except Exception as e:
          print('error while moving files. err: ' + str(e))
+         exit(1)
 
       # wait for new files
       try:

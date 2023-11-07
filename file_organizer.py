@@ -143,7 +143,7 @@ def main():
             sleep(3)
             pass
       except Exception as e:
-         print('Service stopped, ' + str(e))
+         print('Service stopped')
          exit(1)
 
    

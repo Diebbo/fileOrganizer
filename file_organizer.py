@@ -16,12 +16,16 @@ PATH_TO_UNI = 'Documents/obsidian/Note uni di Diebbo/Secondo Anno'
 def handle_file(file, dest):
    _in = input('move to ' + dest + ': ' + file + ' - Continue? [y/n]') 
    if _in == 'n':
-      exit(0)
+      raise Exception('file skipped')
 
 def move_to(files, dest_path, name, prefixes, destinations, is_recursive = True):
    for file in files:
       if not default_yes:
-         handle_file(file, name)
+         try:
+            handle_file(file, name)
+         except Exception as e:
+            print(str(e))
+            continue
 
       dest = ''
       for prefix in prefixes:
@@ -85,66 +89,61 @@ def main():
       if '-y' in arg:
          default_yes = True
 
-   while True:
-      # dowload directory
-      os.chdir(f'/home/{user}/{DOWLOAD_DIRECTORY}')
+   # dowload directory
+   os.chdir(f'/home/{user}/{DOWLOAD_DIRECTORY}')
+   
+   # get all files in dowload directory
+   dowload_files = os.listdir('.')
+   
+   # prefixes
+   uni_prefixes = ['ott', 'lin', 'sis', 'cal', 'ret']
+   sys_prefixes = ['doc', 'pic', 'vid', 'mus', 'tem', 'pub', 'dow']
+   
+   # destinations
+   uni_destinations = {
+      'ott': 'Ottimizzazione Combinatoria',
+      'lin': 'Linguaggi di Programmazione',
+      'sis': 'Sistemi Operativi',
+      'cal': 'Calcolo Numerico',
+      'ret': 'Reti di Calcolatori'
+      }
+   sys_destinations = {
+      'doc': 'Documents',
+      'pic': 'Pictures',
+      'vid': 'Videos',
+      'mus': 'Music',
+      'tmp': 'tmp',
+      'pub': 'Public',
+      'dow': 'Downloads'
+      }
+
+   # regexes
+   uni_regex = r'(ott|lin|sis|cal|ret)(-\S+)+\.[a-zA-Z]+'
+   file_sys_regex = r'(doc|pic|vid|mus|tmp|pub|dow)(-\S+)+\.[a-zA-Z]+'
+
+   # filter
+   uni_files = [file for file in dowload_files if search(uni_regex, file)]
+   file_sys_files = [file for file in dowload_files if search(file_sys_regex, file)]
+
+   # move files
+   try:
+      move_to(uni_files, f'/home/{user}/{PATH_TO_UNI}', 'uni', uni_prefixes, uni_destinations)
+      move_to(file_sys_files, f'/home/{user}/', 'file system', sys_prefixes, sys_destinations)
+   except Exception as e:
+      print('error while moving files. err: ' + str(e))
+      exit(1)
+
+   # wait for new files
+   try:
+      # recursive search
+      is_recursive = default_yes if default_yes else bool(input('recursive search? [y/n]') == 'y')
       
-      # get all files in dowload directory
-      dowload_files = os.listdir('.')
+      # convert .xopp to .pdf
+      convert_xopp(f'/home/{user}/{PATH_TO_UNI}', is_recursive)
       
-      # prefixes
-      uni_prefixes = ['ott', 'lin', 'sis', 'cal', 'ret']
-      sys_prefixes = ['doc', 'pic', 'vid', 'mus', 'tem', 'pub', 'dow']
-      
-      # destinations
-      uni_destinations = {
-         'ott': 'Ottimizzazione Combinatoria',
-         'lin': 'Linguaggi di Programmazione',
-         'sis': 'Sistemi Operativi',
-         'cal': 'Calcolo Numerico',
-         'ret': 'Reti di Calcolatori'
-         }
-      sys_destinations = {
-         'doc': 'Documents',
-         'pic': 'Pictures',
-         'vid': 'Videos',
-         'mus': 'Music',
-         'tmp': 'tmp',
-         'pub': 'Public',
-         'dow': 'Downloads'
-         }
-
-      # regexes
-      uni_regex = r'(ott|lin|sis|cal|ret)(-\S+)+\.[a-zA-Z]+'
-      file_sys_regex = r'(doc|pic|vid|mus|tmp|pub|dow)(-\S+)+\.[a-zA-Z]+'
-
-      # filter
-      uni_files = [file for file in dowload_files if search(uni_regex, file)]
-      file_sys_files = [file for file in dowload_files if search(file_sys_regex, file)]
-
-      # move files
-      try:
-         move_to(uni_files, f'/home/{user}/{PATH_TO_UNI}', 'uni', uni_prefixes, uni_destinations)
-         move_to(file_sys_files, f'/home/{user}/', 'file system', sys_prefixes, sys_destinations)
-      except Exception as e:
-         print('error while moving files. err: ' + str(e))
-         exit(1)
-
-      # wait for new files
-      try:
-         # recursive search
-         is_recursive = default_yes if default_yes else bool(input('recursive search? [y/n]') == 'y')
-         
-         # convert .xopp to .pdf
-         convert_xopp(f'/home/{user}/{PATH_TO_UNI}', is_recursive)
-         
-         while dowload_files == os.listdir(f'/home/{user}/{DOWLOAD_DIRECTORY}'):
-            print('waiting for new files...')
-            sleep(3)
-            pass
-      except Exception as e:
-         print('Service stopped')
-         exit(1)
+   except Exception as e:
+      print('error while converting files. err: ' + str(e))
+      exit(1)
 
    
 if __name__ == "__main__":
